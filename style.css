@@ -1,0 +1,43 @@
+/* Header mygtukai modernizuoti */
+.header-buttons button {
+  background: #444;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: background 0.2s, transform 0.1s;
+}
+.header-buttons button:hover {
+  background: #61dafb;
+  color: #222;
+  transform: scale(1.05);
+}
+
+/* Kortelė taisyklėms */
+.rule-card {
+  background-color: #2d2d3a;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  padding: 15px;
+}
+.rule-card h4 {
+  color: #61dafb;
+  margin-bottom: 10px;
+}
+
+/* Rezultatų langas terminalo stiliumi */
+#results {
+  background: #222;
+  color: #ddd;
+  font-family: monospace;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+/* Flex konteineris pagrindui */
+.main {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+}
+@media(max-width: 768px) {
+  .main { flex-direction: column; }
+}
