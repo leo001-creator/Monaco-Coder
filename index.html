@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Online Python IDE</title>
+<!-- Google Fonts for a modern look -->
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
+<style>
+  /* Reset default styles */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Fira Code', monospace;
+    background-color: #1e1e2f;
+    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Top header bar */
+  header {
+    background-color: #282c34;
+    padding: 1rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #61dafb;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Main container */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: auto;
+  }
+
+  /* Editor and output areas */
+  .editor-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Code editor styling */
+  #editor {
+    width: 100%;
+    height: 300px;
+    padding: 1rem;
+    background-color: #2d2d3a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    font-family: 'Fira Code', monospace;
+    font-size: 1rem;
+    color: #eee;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  #editor:focus {
+    border-color: #61dafb;
+    box-shadow: 0 0 8px rgba(97, 218, 251, 0.6);
+  }
+
+  /* Buttons panel */
+  #buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Button styles */
+  button {
+    background-color: #444;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #eee;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+  }
+
+  button:hover {
+    background-color: #61dafb;
+    color: #222;
+    transform: translateY(-2px);
+  }
+
+  /* Output console */
+  #output {
+    background-color: #222;
+    padding: 1rem;
+    border-radius: 8px;
+    min-height: 150px;
+    max-height: 250px;
+    overflow-y: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.95rem;
+    color: #eee;
+    border: 1px solid #444;
+    margin-top: 1rem;
+  }
+
+  /* Responsive adjustments */
+  @media(max-width: 768px) {
+    #editor {
+      height: 200px;
+    }
+    #output {
+      min-height: 100px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  Online Python IDE
+</header>
+
+<main>
+  <div class="editor-container">
+    <!-- Code Editor -->
+    <textarea id="editor" aria-label="Code editor">print("Hello, World!")</textarea>
+
+    <!-- Control Buttons -->
+    <div id="buttons">
+      <button id="run">Run</button>
+      <button id="clear">Clear</button>
+      <button id="example">Example</button>
+      <button id="download">Download</button>
+    </div>
+
+    <!-- Output console -->
+    <div id="output"></div>
+  </div>
+</main>
+
+<!-- Load Pyodide -->
+<script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+<script>
+  let pyodideReady = false;
+  let pyodide = null;
+
+  async function loadPyodideAndPackages() {
+    pyodide = await loadPyodide();
+    pyodideReady = true;
+  }
+  loadPyodideAndPackages();
+
+  const runButton = document.getElementById('run');
+  const clearButton = document.getElementById('clear');
+  const exampleButton = document.getElementById('example');
+  const downloadButton = document.getElementById('download');
+  const outputDiv = document.getElementById('output');
+  const editor = document.getElementById('editor');
+
+  function appendOutput(text) {
+    outputDiv.textContent += text + '\n';
+    outputDiv.scrollTop = outputDiv.scrollHeight;
+  }
+
+  // Run code
+document.getElementById('run').addEventListener('click', async () => {
+    if (!pyodideReady) {
+      appendOutput('Loading Python engine, please wait...');
+      return;
+    }
+    outputDiv.textContent = '';
+    const code = editor.value;
+    try {
+      let output = await pyodide.runPythonAsync(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+
+try:
+    exec("""${code}""")
+    result = sys.stdout.getvalue()
+finally:
+    sys.stdout = sys.__stdout__
+
+result
+`);
+      appendOutput(output);
+    } catch (err) {
+      appendOutput('Error: ' + err);
+    }
+  });
+
+  // Clear editor and output
+  document.getElementById('clear').addEventListener('click', () => {
+    editor.value = '';
+    outputDiv.textContent = '';
+  });
+
+  // Load example code
+  document.getElementById('example').addEventListener('click', () => {
+    editor.value = `# Example Python code
+for i in range(3):
+    print("Number", i)
+`;
+  });
+
+  // Download code as a .py file
+  document.getElementById('download').addEventListener('click', () => {
+    const code = editor.value;
+    const blob = new Blob([code], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'script.py';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+</script>
+
+</body>
+</html>
