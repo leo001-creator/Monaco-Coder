@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VS Code Stiliaus Online Python IDE</title>
-<!-- Google Fonts for a modern, monospace font -->
+<title>VS Code Stiliaus Python IDE su Failų Naršymu</title>
+<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
 <!-- CodeMirror CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/lib/codemirror.css" />
-<!-- Optional: Add a dark theme for CodeMirror -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/theme/dracula.css" />
 <style>
-  /* Reset & base styles */
+  /* Bendra stilių dalis */
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: 'Fira Code', monospace;
     background-color: #1e1e2f;
@@ -23,127 +21,74 @@
     height: 100vh;
   }
 
-  /* Top header */
+  /* Antraštė */
   header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #282c34;
-    padding: 0.75rem 1rem;
+    display: flex; justify-content: space-between; align-items: center;
+    background-color: #282c34; padding: 0.75rem 1rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    font-size: 1.2rem;
   }
-  header .title {
-    font-weight: 500;
-    color: #61dafb;
-  }
-  /* Buttons in header */
+  .title { font-weight: 500; color: #61dafb; font-size: 1.2rem; }
+
+  /* Mygtukų stilius */
   .header-buttons button {
-    margin-left: 0.5rem;
-    background-color: #444;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 3px;
-    font-size: 1rem;
-    color: #eee;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    margin-left: 0.5rem; background: #444; border: none; padding: 0.5rem 1rem;
+    border-radius: 3px; font-size: 1rem; color: #eee; cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
   }
   .header-buttons button:hover {
-    background-color: #61dafb;
-    color: #222;
-    transform: translateY(-1px);
+    background: #61dafb; color: #222; transform: translateY(-1px);
   }
 
-  /* Main layout: sidebar + editor + output */
-  .main-layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
+  /* pagrindinis layout - failų naršymas + redaktorius + tekstai */
+  .main {
+    display: flex; flex: 1; overflow: hidden;
   }
 
-  /* Sidebar mockup (not functional, just for style) */
+  /* Failų naršymo panelė */
   .sidebar {
-    width: 200px;
-    background-color: #2d2d3a;
-    border-right: 1px solid #444;
-    padding: 1rem;
-    font-size: 0.9rem;
-    color: #ccc;
+    width: 220px; background: #2d2d3a; border-right: 1px solid #444; padding: 1rem; overflow-y: auto;
+  }
+  .sidebar h4 { margin-bottom: 1rem; color: #61dafb; }
+  #fileList { list-style: none; }
+  #fileList li {
+    padding: 0.5rem; cursor: pointer; border-radius: 3px;
+    transition: background 0.2s;
+  }
+  #fileList li:hover { background: #444; }
+
+  /* Redaktorius + outputas */
+  .editor-output {
+    flex: 1; display: flex; flex-direction: column;
   }
 
-  /* Main editor + output area */
-  .editor-output-area {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-
-  /* Code editor container */
+  /* Redaktorius */
   .editor-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 0.5rem;
-    background-color: #1e1e2f;
+    flex: 1; padding: 0.5rem; background-color: #1e1e2f; display: flex; flex-direction: column;
   }
+  /* CodeMirror redaktorius */
+  .CodeMirror { height: 100%; border-radius: 4px; border: 1px solid #444; }
 
-  /* CodeMirror styling overrides */
-  .CodeMirror {
-    height: 100%;
-    border-radius: 4px;
-    border: 1px solid #444;
-    font-family: 'Fira Code', monospace;
-  }
-
-  /* Buttons below editor */
+  /* apačioje mygtukai */
   .bottom-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    padding: 0.5rem 0;
+    display: flex; justify-content: center; gap: 1rem; padding: 0.5rem 0;
   }
   .bottom-buttons button {
-    background-color: #444;
-    border: none;
-    padding: 0.55rem 1.2rem;
-    border-radius: 3px;
-    font-size: 1rem;
-    color: #eee;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    background: #444; padding: 0.55rem 1.2rem; border-radius: 3px; border: none; font-size: 1rem; color: #eee;
+    cursor: pointer; transition: background 0.2s, transform 0.1s;
   }
-  .bottom-buttons button:hover {
-    background-color: #61dafb;
-    color: #222;
-    transform: translateY(-1px);
+  .bottom-buttons button:hover { background: #61dafb; color: #222; transform: translateY(-1px); }
+
+  /* Tekstų panelės (taisyklių ir patarimų) */
+  .texts-panel {
+    padding: 1rem; background-color: #222; overflow-y: auto; max-height: 250px;
+    font-size: 0.95rem; color: #eee; border-top: 1px solid #444;
   }
 
-  /* Output/terminal panel */
-  .output-panel {
-    height: 150px;
-    max-height: 250px;
-    background-color: #222;
-    border-top: 1px solid #444;
-    padding: 0.75rem;
-    font-family: 'Fira Code', monospace;
-    font-size: 0.95rem;
-    overflow-y: auto;
-    color: #eee;
-  }
-
-  /* Responsive adjustments */
+  /* Responsive */
   @media(max-width: 768px) {
-    .main-layout {
-      flex-direction: column;
-    }
-    .sidebar {
-      width: 100%;
-      height: 80px;
-    }
-    .output-panel {
-      height: 120px;
-    }
+    .main { flex-direction: column; }
+    .sidebar { width: 100%; height: 150px; }
+    .texts-panel { max-height: 150px; }
   }
 </style>
 </head>
@@ -159,29 +104,28 @@
   </div>
 </header>
 
-<div class="main-layout">
-  <!-- Sidebar mockup -->
+<div class="main">
+  <!-- Failų naršymas -->
   <div class="sidebar">
     <h4>Failų naršymas</h4>
-    <p>Šiuo metu neveikia</p>
+    <button id="newFile">Naujas failas</button>
+    <ul id="fileList"></ul>
   </div>
-
-  <!-- Editor + Output -->
-  <div class="editor-output-area">
+  <!-- Redaktorius + tekstai -->
+  <div class="editor-output">
     <div class="editor-container">
-      <!-- CodeMirror editor will initialize here -->
-      <textarea id="code" name="code"></textarea>
+      <textarea id="code"></textarea>
     </div>
-    <!-- Buttons below editor -->
+    <!-- Mygtukai po redaktoriumi -->
     <div class="bottom-buttons">
       <button id="exampleBtn">Pavyzdys</button>
     </div>
-    <!-- Output / Terminal panel -->
-    <div id="output" class="output-panel">Čia rodomas rezultatas</div>
+    <!-- Tekstų panelė -->
+    <div class="texts-panel" id="textsPanel"></div>
   </div>
 </div>
 
-<!-- Scripts: CodeMirror + Pyodide -->
+<!-- Scriptai: CodeMirror + Pyodide -->
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/lib/codemirror.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/mode/python/python.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/addon/display/active-line.js"></script>
@@ -190,32 +134,70 @@
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/addon/selection/active-line.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
 <script>
-  // Initialize CodeMirror
+  // Failų sąrašas (simuliuotas)
+  const files = [
+    {name: 'pirmas.py', code: `print("Labas pasauli")`},
+    {name: 'antras.py', code: `for i in range(3):
+    print("Skaičius", i)`},
+  ];
+
+  // Failų sąrašas įkeliama
+  const fileListUl = document.getElementById('fileList');
+
+  // Failų įkėlimas į sąrašą
+  function refreshFileList() {
+    fileListUl.innerHTML = '';
+    files.forEach((file, index) => {
+      const li = document.createElement('li');
+      li.textContent = file.name;
+      li.onclick = () => {
+        loadFile(index);
+      };
+      fileListUl.appendChild(li);
+    });
+  }
+
+  function loadFile(index) {
+    const file = files[index];
+    editor.setValue(file.code);
+  }
+
+  document.getElementById('newFile').onclick = () => {
+    const filename = prompt('Įveskite naujo failo pavadinimą:', 'naujas.py');
+    if (filename) {
+      files.push({name: filename, code: ''});
+      refreshFileList();
+    }
+  };
+
+  // Redaktorius
   let editor;
   async function init() {
-    editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-      mode: "python",
-      theme: "dracula",
+    editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+      mode: 'python',
+      theme: 'dracula',
       lineNumbers: true,
       styleActiveLine: true,
       indentUnit: 4,
       indentWithTabs: false,
       lineWrapping: true,
     });
-    // Load Pyodide
     window.pyodide = await loadPyodide();
+    refreshFileList();
+    // Automatiškai įkelti pirmą failą
+    if (files.length > 0) loadFile(0);
   }
   init();
 
-  const outputDiv = document.getElementById('output');
+  const outputDiv = document.getElementById('textsPanel');
 
   function appendOutput(text) {
     outputDiv.textContent += text + '\n';
     outputDiv.scrollTop = outputDiv.scrollHeight;
   }
 
-  // Run code
-document.getElementById('runBtn').addEventListener('click', async () => {
+  // Vykdyti
+document.getElementById('runBtn').onclick = async () => {
     outputDiv.textContent = '';
     try {
       const code = editor.getValue();
@@ -238,24 +220,24 @@ result
     } catch (err) {
       appendOutput('Klaida: ' + err);
     }
-  });
+  };
 
-  // Clear editor and output
-document.getElementById('clearBtn').addEventListener('click', () => {
+  // Valyti
+document.getElementById('clearBtn').onclick = () => {
     editor.setValue('');
     outputDiv.textContent = '';
-  });
+  };
 
-  // Example code
-document.getElementById('exampleBtn').addEventListener('click', () => {
+  // Pavyzdinis kodas
+document.getElementById('exampleBtn').onclick = () => {
     editor.setValue(`# Pavyzdinis Python kodas
 for i in range(3):
     print("Skaičius", i)
 `);
-  });
+  };
 
-  // Download code
-document.getElementById('downloadBtn').addEventListener('click', () => {
+  // Atsisiuntimas
+document.getElementById('downloadBtn').onclick = () => {
     const code = editor.getValue();
     const blob = new Blob([code], {type: 'text/plain'});
     const url = URL.createObjectURL(blob);
@@ -266,12 +248,49 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  });
+  };
 
-  // Reset page
-document.getElementById('resetBtn').addEventListener('click', () => {
+  // Perkrauti
+document.getElementById('resetBtn').onclick = () => {
     location.reload();
-  });
+  };
+
+  // Taisyklės ir patarimai
+const taisykles = `
+📘 Taisyklės (Coding Commands & Rules – LT)
+🧠 1. Komanda print()
+Paskirtis: išveda tekstą ekrane
+💡 Taisyklė: Tekstas visada kabutėse " "
+📌 Pavyzdys: print("Labas pasauli")
+🔤 2. Komanda input()
+Paskirtis: įvestis iš vartotojo
+📌 Pavyzdys: name = input("Įvesk vardą: "); print(name)
+⚖️ 3. Komanda if
+Paskirtis: sąlyga (jei)
+📌 Pavyzdys: if x > 5: print("Daugiau už 5")
+🔁 4. Komanda else
+Paskirtis: jei sąlyga neteisinga
+📌 Pavyzdys: else: print("Mažiau")
+🔀 5. Komanda elif
+Paskirtis: papildoma sąlyga
+📌 Pavyzdys: elif x > 5: print("Vidutinis")
+🔄 6. Komanda for
+Paskirtis: kartoja veiksmus
+📌 Pavyzdys: for i in range(3): print(i)
+🔁 7. Komanda while
+Paskirtis: kartoja kol tiesa
+📌 Pavyzdys: while i < 3: print(i); i += 1
+🧩 8. Komanda def
+Paskirtis: kuria funkciją
+📌 Pavyzdys: def sveiki(): print("Labas!")
+📤 9. Komanda return
+Paskirtis: grąžina rezultatą
+📌 Pavyzdys: def suma(): return 5 + 5
+⚠️ Svarbios taisyklės, programavimo patarimai...
+`;
+
+document.getElementById('textsPanel').innerHTML = taisykles;
+
 </script>
 </body>
 </html>
