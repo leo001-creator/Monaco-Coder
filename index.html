@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lt">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Online Python IDE</title>
-<!-- Google Fonts for a modern look -->
+<title>VS Code Stiliaus Online Python IDE</title>
+<!-- Google Fonts for a modern, monospace font -->
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
+<!-- CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/lib/codemirror.css" />
+<!-- Optional: Add a dark theme for CodeMirror -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/theme/dracula.css" />
 <style>
-  /* Reset default styles */
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  /* Reset & base styles */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     font-family: 'Fira Code', monospace;
@@ -20,106 +20,129 @@
     color: #ccc;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
   }
 
-  /* Top header bar */
+  /* Top header */
   header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background-color: #282c34;
-    padding: 1rem;
-    text-align: center;
-    font-size: 1.5rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    font-size: 1.2rem;
+  }
+  header .title {
     font-weight: 500;
     color: #61dafb;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
-
-  /* Main container */
-  main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    max-width: 1200px;
-    margin: auto;
-  }
-
-  /* Editor and output areas */
-  .editor-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  /* Code editor styling */
-  #editor {
-    width: 100%;
-    height: 300px;
-    padding: 1rem;
-    background-color: #2d2d3a;
-    border: 1px solid #444;
-    border-radius: 8px;
-    font-family: 'Fira Code', monospace;
-    font-size: 1rem;
-    color: #eee;
-    resize: vertical;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  #editor:focus {
-    border-color: #61dafb;
-    box-shadow: 0 0 8px rgba(97, 218, 251, 0.6);
-  }
-
-  /* Buttons panel */
-  #buttons {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  /* Button styles */
-  button {
+  /* Buttons in header */
+  .header-buttons button {
+    margin-left: 0.5rem;
     background-color: #444;
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
     font-size: 1rem;
     color: #eee;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
   }
-
-  button:hover {
+  .header-buttons button:hover {
     background-color: #61dafb;
     color: #222;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
-  /* Output console */
-  #output {
-    background-color: #222;
+  /* Main layout: sidebar + editor + output */
+  .main-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Sidebar mockup (not functional, just for style) */
+  .sidebar {
+    width: 200px;
+    background-color: #2d2d3a;
+    border-right: 1px solid #444;
     padding: 1rem;
-    border-radius: 8px;
-    min-height: 150px;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+
+  /* Main editor + output area */
+  .editor-output-area {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  /* Code editor container */
+  .editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    background-color: #1e1e2f;
+  }
+
+  /* CodeMirror styling overrides */
+  .CodeMirror {
+    height: 100%;
+    border-radius: 4px;
+    border: 1px solid #444;
+    font-family: 'Fira Code', monospace;
+  }
+
+  /* Buttons below editor */
+  .bottom-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+  .bottom-buttons button {
+    background-color: #444;
+    border: none;
+    padding: 0.55rem 1.2rem;
+    border-radius: 3px;
+    font-size: 1rem;
+    color: #eee;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+  }
+  .bottom-buttons button:hover {
+    background-color: #61dafb;
+    color: #222;
+    transform: translateY(-1px);
+  }
+
+  /* Output/terminal panel */
+  .output-panel {
+    height: 150px;
     max-height: 250px;
-    overflow-y: auto;
+    background-color: #222;
+    border-top: 1px solid #444;
+    padding: 0.75rem;
     font-family: 'Fira Code', monospace;
     font-size: 0.95rem;
+    overflow-y: auto;
     color: #eee;
-    border: 1px solid #444;
-    margin-top: 1rem;
   }
 
   /* Responsive adjustments */
   @media(max-width: 768px) {
-    #editor {
-      height: 200px;
+    .main-layout {
+      flex-direction: column;
     }
-    #output {
-      min-height: 100px;
+    .sidebar {
+      width: 100%;
+      height: 80px;
+    }
+    .output-panel {
+      height: 120px;
     }
   }
 </style>
@@ -127,45 +150,64 @@
 <body>
 
 <header>
-  Online Python IDE
+  <div class="title">VS Code Stiliaus Python IDE</div>
+  <div class="header-buttons">
+    <button id="runBtn">Vykdyti</button>
+    <button id="resetBtn">PERKRAUTI</button>
+    <button id="clearBtn">Valyti</button>
+    <button id="downloadBtn">Atsisiųsti</button>
+  </div>
 </header>
 
-<main>
-  <div class="editor-container">
-    <!-- Code Editor -->
-    <textarea id="editor" aria-label="Code editor">print("Hello, World!")</textarea>
-
-    <!-- Control Buttons -->
-    <div id="buttons">
-      <button id="run">Run</button>
-      <button id="clear">Clear</button>
-      <button id="example">Example</button>
-      <button id="download">Download</button>
-    </div>
-
-    <!-- Output console -->
-    <div id="output"></div>
+<div class="main-layout">
+  <!-- Sidebar mockup -->
+  <div class="sidebar">
+    <h4>Failų naršymas</h4>
+    <p>Šiuo metu neveikia</p>
   </div>
-</main>
 
-<!-- Load Pyodide -->
+  <!-- Editor + Output -->
+  <div class="editor-output-area">
+    <div class="editor-container">
+      <!-- CodeMirror editor will initialize here -->
+      <textarea id="code" name="code"></textarea>
+    </div>
+    <!-- Buttons below editor -->
+    <div class="bottom-buttons">
+      <button id="exampleBtn">Pavyzdys</button>
+    </div>
+    <!-- Output / Terminal panel -->
+    <div id="output" class="output-panel">Čia rodomas rezultatas</div>
+  </div>
+</div>
+
+<!-- Scripts: CodeMirror + Pyodide -->
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/lib/codemirror.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/mode/python/python.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/addon/display/active-line.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/addon/edit/closetag.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/addon/comment/comment.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.13/addon/selection/active-line.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
 <script>
-  let pyodideReady = false;
-  let pyodide = null;
-
-  async function loadPyodideAndPackages() {
-    pyodide = await loadPyodide();
-    pyodideReady = true;
+  // Initialize CodeMirror
+  let editor;
+  async function init() {
+    editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      mode: "python",
+      theme: "dracula",
+      lineNumbers: true,
+      styleActiveLine: true,
+      indentUnit: 4,
+      indentWithTabs: false,
+      lineWrapping: true,
+    });
+    // Load Pyodide
+    window.pyodide = await loadPyodide();
   }
-  loadPyodideAndPackages();
+  init();
 
-  const runButton = document.getElementById('run');
-  const clearButton = document.getElementById('clear');
-  const exampleButton = document.getElementById('example');
-  const downloadButton = document.getElementById('download');
   const outputDiv = document.getElementById('output');
-  const editor = document.getElementById('editor');
 
   function appendOutput(text) {
     outputDiv.textContent += text + '\n';
@@ -173,15 +215,11 @@
   }
 
   // Run code
-document.getElementById('run').addEventListener('click', async () => {
-    if (!pyodideReady) {
-      appendOutput('Loading Python engine, please wait...');
-      return;
-    }
+document.getElementById('runBtn').addEventListener('click', async () => {
     outputDiv.textContent = '';
-    const code = editor.value;
     try {
-      let output = await pyodide.runPythonAsync(`
+      const code = editor.getValue();
+      let result = await pyodide.runPythonAsync(`
 import sys
 from io import StringIO
 sys.stdout = StringIO()
@@ -194,40 +232,46 @@ finally:
 
 result
 `);
-      appendOutput(output);
+      if (result.trim() !== 'None') {
+        appendOutput(result);
+      }
     } catch (err) {
-      appendOutput('Error: ' + err);
+      appendOutput('Klaida: ' + err);
     }
   });
 
   // Clear editor and output
-  document.getElementById('clear').addEventListener('click', () => {
-    editor.value = '';
+document.getElementById('clearBtn').addEventListener('click', () => {
+    editor.setValue('');
     outputDiv.textContent = '';
   });
 
-  // Load example code
-  document.getElementById('example').addEventListener('click', () => {
-    editor.value = `# Example Python code
+  // Example code
+document.getElementById('exampleBtn').addEventListener('click', () => {
+    editor.setValue(`# Pavyzdinis Python kodas
 for i in range(3):
-    print("Number", i)
-`;
+    print("Skaičius", i)
+`);
   });
 
-  // Download code as a .py file
-  document.getElementById('download').addEventListener('click', () => {
-    const code = editor.value;
+  // Download code
+document.getElementById('downloadBtn').addEventListener('click', () => {
+    const code = editor.getValue();
     const blob = new Blob([code], {type: 'text/plain'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'script.py';
+    a.download = 'mano_kodas.py';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
-</script>
 
+  // Reset page
+document.getElementById('resetBtn').addEventListener('click', () => {
+    location.reload();
+  });
+</script>
 </body>
 </html>
