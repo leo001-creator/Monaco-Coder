@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Python IDE su Failų Valdymu</title>
+<title>Python IDE su Failų Valdymu ir Taisyklėmis</title>
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
 <!-- CodeMirror CSS -->
@@ -26,7 +26,8 @@
   /* Antraštė */
   header {
     display: flex; justify-content: space-between; align-items: center;
-    background-color: #222; padding: 10px; border-radius: 5px;
+    background-color: #222; padding: 10px; border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
   }
   .title { color: #61dafb; font-size: 1.2rem; }
 
@@ -45,60 +46,84 @@
 
   /* Failų naršymas */
   .sidebar {
-    width: 220px; background: #1e1e2f; border-radius: 5px; padding: 1rem; overflow-y: auto;
+    width: 220px; background: #1e1e2f; border-radius: 8px; padding: 1rem; overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
   }
   #fileList { list-style: none; margin-top: 10px; }
   #fileList li {
-    padding: 0.5rem; cursor: pointer; border-radius: 3px; display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 5px;
+    padding: 0.5rem; cursor: pointer; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
     background-color: #2d2d3a;
     transition: background 0.2s;
   }
   #fileList li:hover { background-color: #444; }
 
-  /* Failo mygtukas šalinti */
+  /* Failo šalinti mygtukas */
   .del-btn {
     background: #a00; color: #fff; border: none; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 0.8rem;
   }
 
-  /* Redaktorius + rezultatų langas */
+  /* Redaktorius + rezultatai */
   .editor-output {
     flex: 1; display: flex; flex-direction: column;
   }
 
   /* Redaktorius */
   .editor-container {
-    flex: 1; background-color: #1e1e2f; padding: 10px; border-radius: 5px; display: flex; flex-direction: column;
+    flex: 1; background-color: #1e1e2f; padding: 10px; border-radius: 8px; display: flex; flex-direction: column;
   }
   .CodeMirror { height: 100%; border-radius: 4px; border: 1px solid #444; }
 
-  /* Apatinė dalis - vykdymo rezultatai */
+  /* Rezultatų langas */
   #results {
-    height: 150px; background: #222; color: #eee; margin-top: 10px; padding: 10px; border-radius: 5px; overflow-y: auto; font-family: monospace; white-space: pre-wrap;
+    height: 150px; background: #222; color: #eee; margin-top: 10px; padding: 10px; border-radius: 8px; overflow-y: auto; font-family: monospace; white-space: pre-wrap;
+  }
+
+  /* Taisyklės kaip blokai */
+  .rules-container {
+    display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px;
+  }
+  .rule-card {
+    background-color: #2d2d3a; padding: 15px; border-radius: 10px; width: calc(33% - 20px);
+    box-shadow: 0 0 8px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column; height: auto;
+  }
+  .rule-card h4 {
+    color: #61dafb; margin-bottom: 10px; font-size: 1.1rem;
+  }
+  .rule-text {
+    font-size: 0.9rem; line-height: 1.4; color: #ccc;
   }
 
   /* Mygtukas "Taisyklės" apačioje kairėje */
   #rulesBtn {
-    margin-top: 10px; padding: 0.5rem 1rem; background: #444; border: none; border-radius: 3px; cursor: pointer; font-size: 1rem; color: #eee;
+    margin-top: 15px; padding: 0.6rem 1.2rem; background: #444; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; color: #eee;
   }
   #rulesBtn:hover { background: #61dafb; color: #222; }
 
-  /* Taisyklės lango modalas */
+  /* Modal langas taisyklėms */
   #rulesOverlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;
   }
   #rulesModal {
-    background: #222; color: #eee; padding: 20px; border-radius: 8px; max-width: 80%; max-height: 80%; overflow-y: auto;
+    background: #222; color: #eee; padding: 20px; border-radius: 8px; max-width: 90%; max-height: 80%; overflow-y: auto;
   }
   #rulesClose {
-    margin-top: 10px; padding: 0.5rem 1rem; background: #444; border: none; border-radius: 3px; cursor: pointer; color: #eee;
+    margin-top: 15px; padding: 0.7rem 1.4rem; background: #444; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; color: #eee;
   }
   #rulesClose:hover { background: #61dafb; color: #222; }
 
-  /* Responsive */
+  /* Responsyvus */
+  @media(max-width: 1024px) {
+    .rule-card {
+      width: calc(50% - 20px);
+    }
+  }
   @media(max-width: 768px) {
+    .rule-card {
+      width: 100%;
+    }
     .main { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; }
   }
 </style>
 </head>
@@ -121,17 +146,19 @@
     <button id="newFile">Naujas failas</button>
     <ul id="fileList"></ul>
   </div>
-  <!-- Redaktorius + rezultatai -->
+  <!-- Redaktorius + rezultatai + taisyklės -->
   <div class="editor-output">
     <div class="editor-container">
       <textarea id="code"></textarea>
     </div>
     <div id="results">Čia bus rodomas vykdyto kodo rezultatas</div>
     <button id="showRules" style="margin-top:10px;">Taisyklės</button>
+    <!-- Taisyklės kaip blokeliai -->
+    <div class="rules-container" id="rulesContainer"></div>
   </div>
 </div>
 
-<!-- Taisyklės lango modalas -->
+<!-- Taisyklės modalas -->
 <div id="rulesOverlay">
   <div id="rulesModal">
     <h3>Taisyklės ir Patarimai</h3>
@@ -266,50 +293,70 @@ document.getElementById('resetBtn').onclick = () => {
     location.reload();
   };
 
-  // Taisyklės ir Patarimai
-const taisykles = `
-📘 Taisyklės (Coding Commands & Rules – LT)
-🧠 1. Komanda print()
-Paskirtis: išveda tekstą ekrane
-💡 Taisyklė: Tekstas visada kabutėse " "
-📌 Pavyzdys: print("Labas pasauli")
-🔤 2. Komanda input()
-Paskirtis: įvestis iš vartotojo
-📌 Pavyzdys: name = input("Įvesk vardą: "); print(name)
-⚖️ 3. Komanda if
-Paskirtis: sąlyga (jei)
-📌 Pavyzdys: if x > 5: print("Daugiau už 5")
-🔁 4. Komanda else
-Paskirtis: jei sąlyga neteisinga
-📌 Pavyzdys: else: print("Mažiau")
-🔀 5. Komanda elif
-Paskirtis: papildoma sąlyga
-📌 Pavyzdys: elif x > 5: print("Vidutinis")
-🔄 6. Komanda for
-Paskirtis: kartoja veiksmus
-📌 Pavyzdys: for i in range(3): print(i)
-🔁 7. Komanda while
-Paskirtis: kartoja kol tiesa
-📌 Pavyzdys: while i < 3: print(i); i += 1
-🧩 8. Komanda def
-Paskirtis: kuria funkciją
-📌 Pavyzdys: def sveiki(): print("Labas!")
-📤 9. Komanda return
-Paskirtis: grąžina rezultatą
-📌 Pavyzdys: def suma(): return 5 + 5
-⚠️ Svarbios taisyklės, programavimo patarimai...
-`;
+  // Taisyklės kaip kortelės
+const taisykles = [
+  {
+    pavadinimas: "Komanda print()",
+    aprašymas: "Išveda tekstą ekrane. Tekstas kabutėse \" \".",
+    pavyzdys: 'print("Labas pasauli")'
+  },
+  {
+    pavadinimas: "Komanda input()",
+    aprašymas: "Įveda iš vartotojo.",
+    pavyzdys: 'name = input("Įvesk vardą: "); print(name)'
+  },
+  {
+    pavadinimas: "Komanda if",
+    aprašymas: "Sąlyga (jei).",
+    pavyzdys: 'if x > 5:\n    print("Daugiau už 5")'
+  },
+  {
+    pavadinimas: "Komanda else",
+    aprašymas: "Jei sąlyga neteisinga.",
+    pavyzdys: 'else:\n    print("Mažiau")'
+  },
+  {
+    pavadinimas: "Komanda for",
+    aprašymas: "Kartojimas.",
+    pavyzdys: 'for i in range(3):\n    print(i)'
+  },
+  {
+    pavadinimas: "Komanda while",
+    aprašymas: "Kartojimas kol tiesa.",
+    pavyzdys: 'while i < 3:\n    print(i)\n    i += 1'
+  },
+  {
+    pavadinimas: "Komanda def",
+    aprašymas: "Funkcijos kūrimas.",
+    pavyzdys: 'def sveiki():\n    print("Labas!")'
+  },
+  {
+    pavadinimas: "Komanda return",
+    aprašymas: "Grąžina rezultatą.",
+    pavyzdys: 'def suma():\n    return 5 + 5'
+  }
+];
 
-document.getElementById('rulesContent').innerText = taisykles;
+// Sukurti korteles
+const rulesContainer = document.getElementById('rulesContainer');
+taisykles.forEach(rule => {
+  const card = document.createElement('div');
+  card.className = 'rule-card';
+  card.innerHTML = `
+    <h4>${rule.pavadinimas}</h4>
+    <div class="rule-text">${rule.aprašymas}</div>
+    <pre style="margin-top:8px; font-family: monospace;">${rule.pavyzdys}</pre>
+  `;
+  rulesContainer.appendChild(card);
+});
 
-  // Mygtukas atidaryti taisyklių langą
-  document.getElementById('showRules').onclick = () => {
-    document.getElementById('rulesOverlay').style.display = 'flex';
-  };
-
-  document.getElementById('rulesClose').onclick = () => {
-    document.getElementById('rulesOverlay').style.display = 'none';
-  };
+// Taisyklės lango atidarymas
+document.getElementById('showRules').onclick = () => {
+  document.getElementById('rulesOverlay').style.display = 'flex';
+};
+document.getElementById('rulesClose').onclick = () => {
+  document.getElementById('rulesOverlay').style.display = 'none';
+};
 </script>
 
 </body>
